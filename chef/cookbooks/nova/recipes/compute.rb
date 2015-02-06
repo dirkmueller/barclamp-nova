@@ -98,6 +98,11 @@ if %w(redhat centos suse).include?(node.platform)
     node.save
   end
 
+  # Magic guessing to scale up the libvirtd max_clients for powerful
+  # compute hosts. There is no fancy reasoning behind this (yet)
+  libvirtd_max_clients = 20 + [256, node["cpu"]["total"] / 4].min
+  libvirtd_prio_workers = libvirtd_max_clients / 4
+
   template "/etc/libvirt/libvirtd.conf" do
     source "libvirtd.conf.erb"
     group "root"
@@ -107,7 +112,9 @@ if %w(redhat centos suse).include?(node.platform)
       :libvirtd_host_uuid => node[:nova][:host_uuid],
       :libvirtd_listen_tcp => node[:nova]["use_migration"] ? 1 : 0,
       :libvirtd_listen_addr => Chef::Recipe::Barclamp::Inventory.get_network_by_type(node, "admin").address,
-      :libvirtd_auth_tcp => node[:nova]["use_migration"] ? "none" : "sasl"
+      :libvirtd_auth_tcp => node[:nova]["use_migration"] ? "none" : "sasl",
+      :libvirtd_prio_workers => libvirtd_prio_workers,
+      :libvirtd_max_clients => libvirtd_max_clients,
     )
     notifies :restart, "service[libvirtd]", :delayed
   end

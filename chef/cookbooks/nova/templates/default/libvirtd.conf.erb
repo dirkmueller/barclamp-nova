@@ -246,7 +246,7 @@ auth_tcp = "<%= @libvirtd_auth_tcp %>"
 
 # The maximum number of concurrent client connections to allow
 # over all sockets combined.
-#max_clients = 20
+max_clients = <%= @libvirtd_max_clients %>
 
 
 # The minimum limit sets the number of workers to start up
@@ -254,14 +254,14 @@ auth_tcp = "<%= @libvirtd_auth_tcp %>"
 # then more threads are spawned, up to max_workers limit.
 # Typically you'd want max_workers to equal maximum number
 # of clients allowed
-#min_workers = 5
-#max_workers = 20
+min_workers = <%= @libvirtd_prio_workers %>
+max_workers = <%= @libvirtd_max_clients %>
 
 
 # The number of priority workers. If all workers from above
 # pool will stuck, some calls marked as high priority
 # (notably domainDestroy) can be executed in this pool.
-#prio_workers = 5
+prio_workers = <%= @libvirtd_prio_workers %>
 
 # Total global limit on concurrent RPC calls. Should be
 # at least as large as max_workers. Beyond this, RPC requests
@@ -271,13 +271,13 @@ auth_tcp = "<%= @libvirtd_auth_tcp %>"
 #
 # XXX this isn't actually enforced yet, only the per-client
 # limit is used so far
-#max_requests = 20
+max_requests = <%= @libvirtd_max_clients %>
 
 # Limit on concurrent requests from a single client
 # connection. To avoid one client monopolizing the server
 # this should be a small fraction of the global max_requests
 # and max_workers parameter
-#max_client_requests = 5
+max_client_requests = <%= @libvirtd_prio_workers %>
 
 #################################################################
 #
